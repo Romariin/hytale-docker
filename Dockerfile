@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     tini \
     procps \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
 # =============================================================================
@@ -25,8 +26,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # =============================================================================
 RUN groupadd -g 1000 hytale 2>/dev/null || true && \
     useradd -u 1000 -g 1000 -d /home/hytale -m -s /bin/bash hytale 2>/dev/null || true && \
-    mkdir -p /server && \
-    chown -R 1000:1000 /server
+    mkdir -p /server /home/hytale/.config/hytale/tokens /home/hytale/.cache/hytale && \
+    chown -R 1000:1000 /server /home/hytale
 
 # =============================================================================
 # Download hytale-downloader
@@ -43,22 +44,26 @@ RUN curl -fsSL -o hytale-downloader.zip "https://downloader.hytale.com/hytale-do
     && rm -rf hytale-downloader.zip hytale-downloader
 
 # =============================================================================
-# Copy entrypoint script
+# Copy scripts
 # =============================================================================
 WORKDIR /server
 COPY --chown=1000:1000 scripts/entrypoint.sh /server/scripts/
-RUN chmod +x /server/scripts/entrypoint.sh
+COPY --chown=1000:1000 scripts/lib/ /server/scripts/lib/
+COPY --chown=1000:1000 scripts/hytale-cmd.sh /usr/local/bin/hytale-cmd
+COPY --chown=1000:1000 scripts/hytale-auth.sh /usr/local/bin/hytale-auth
+RUN chmod +x /server/scripts/entrypoint.sh /usr/local/bin/hytale-cmd /usr/local/bin/hytale-auth
 
 # =============================================================================
 # Environment variables
 # =============================================================================
 ENV JAVA_OPTS="-Xms4G -Xmx8G" \
     SERVER_PORT="5520" \
-    AUTO_UPDATE="true" \
-    AUTO_AUTH="true" \
+    PATCHLINE="release" \
     FORCE_UPDATE="false" \
     USE_AOT_CACHE="true" \
     DISABLE_SENTRY="false" \
+    AUTO_REFRESH_TOKENS="true" \
+    AUTOSELECT_GAME_PROFILE="true" \
     EXTRA_ARGS="" \
     TZ="UTC"
 

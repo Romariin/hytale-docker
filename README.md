@@ -20,11 +20,12 @@
 ## ✨ Features
 
 - 🚀 **One-command startup** — Just `docker compose up`, authenticate once, play forever
-- 🔐 **Automated OAuth2** — Device code flow with 30-day persistent tokens
-- 🔄 **Auto-updates** — Downloads and updates server files automatically
+- 🔐 **OAuth2 Authentication** — Single device code flow for both downloader and server
+- 🔄 **Auto-refresh tokens** — Background daemon keeps tokens valid (30-day refresh tokens)
+- 📦 **Auto-updates** — Downloads and updates server files automatically
 - 🔒 **Secure by default** — Non-root user, dropped capabilities, hardened container
 - ⚡ **Fast boot** — AOT cache support for quicker server startup
-- 📦 **Persistent data** — Worlds, mods, and logs survive container restarts
+- 💾 **Persistent data** — Worlds, tokens, and logs survive container restarts
 
 ---
 

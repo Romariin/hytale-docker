@@ -68,15 +68,24 @@ Authentication is **automatic**. Just watch the logs for the device authorizatio
 
 When you see the device auth prompt:
 
+```
+═══════════════════════════════════════════════════════════
+  DEVICE AUTHORIZATION REQUIRED
+═══════════════════════════════════════════════════════════
+  Visit: https://accounts.hytale.com/device
+  Code:  XXXX-XXXX
+═══════════════════════════════════════════════════════════
+```
+
 1. Visit the URL shown in the logs
 2. Log in with your Hytale account
 3. Enter the verification code
 4. Authorize the server
 
 The container will automatically:
-- Detect successful authentication
-- Enable encrypted persistence (`/auth persistence Encrypted`)
-- Be ready for connections
+- Save OAuth tokens for future use
+- Download server files using the same token
+- Create a game session and start the server
 
 ### Connect to Your Server
 
@@ -100,20 +109,32 @@ Replace `your-ip` with:
    ├── hytale-downloader ✓
    └── Dependencies ✓
 
-2. Download server (if needed)
-   ├── Run hytale-downloader
+2. Authenticate (OAuth2 Device Code Flow)
+   ├── Load existing tokens OR
+   ├── Request device code → Show URL to user
+   ├── Poll for authorization
+   └── Save tokens
+
+3. Download server (if needed)
+   ├── Use OAuth token with hytale-downloader
    ├── Extract Server/ and Assets.zip
    └── Verify files
 
-3. Start server
-   └── java -jar HytaleServer.jar ...
+4. Select game profile
+   ├── GET /my-account/get-profiles
+   ├── Auto-select first OR
+   └── Wait for manual selection (if AUTOSELECT_GAME_PROFILE=false)
 
-4. Auto-auth (if enabled)
-   ├── Wait for "Hytale Server Booted"
-   ├── Check for existing persistence
-   │   ├── Found → Done
-   │   └── Not found → /auth login device
-   └── On success → /auth persistence Encrypted
+5. Create game session
+   └── POST /game-session/new
+
+6. Start server with tokens
+   └── java -jar HytaleServer.jar \
+         --session-token "..." \
+         --identity-token "..."
+
+7. Background token refresh daemon
+   └── Refreshes tokens 5 min before expiry
 ```
 
 ## Important Notes
@@ -133,12 +154,9 @@ On subsequent restarts, authentication happens automatically if persistence was 
 To run server commands:
 
 ```bash
-docker attach hytale-server
+docker exec -it hytale-server hytale-cmd /help
+docker exec -it hytale-server hytale-cmd /auth status
 ```
-
-Type commands like `/help`, `/auth status`, etc.
-
-**Detach** without stopping: Press `Ctrl+P` then `Ctrl+Q`
 
 ## Managing the Server
 

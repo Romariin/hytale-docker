@@ -8,78 +8,83 @@ import { Callout } from 'fumadocs-ui/components/callout';
 
 # Authentication
 
-Hytale servers require authentication to operate. This guide explains how the automatic authentication system works.
-
-## Automatic Authentication
-
-The container handles authentication **automatically** using the built-in `/auth` commands. No manual intervention is required after the first device authorization.
-
-<Callout type="info">
-Set `AUTO_AUTH=true` (default) to enable automatic authentication. The container will handle everything for you.
-</Callout>
+Hytale servers require OAuth2 authentication to operate. This container implements the official [Server Provider Authentication Guide](https://support.hytale.com/hc/en-us/articles/45328341414043) for seamless, automated authentication.
 
 ## How It Works
+
+The container uses **OAuth2 Device Code Flow** (RFC 8628) to authenticate with Hytale's servers. On first run, you'll authorize once, and tokens are automatically managed thereafter.
+
+<Callout type="info">
+**One auth, used everywhere** — The same OAuth token authenticates both the `hytale-downloader` (for server files) and the game server itself.
+</Callout>
+
+## Authentication Flow
 
 <Steps>
 
 ### First Startup
 
-When you start the server for the first time:
-1. The server boots and waits for authentication
-2. The container automatically sends `/auth login device`
-3. A device authorization URL and code appear in the logs
-4. You complete authorization in your browser
+When you start the container for the first time:
+1. Container requests a device code from Hytale OAuth
+2. A device authorization URL and code appear in the logs
+3. You complete authorization in your browser
+4. Tokens are saved and used for all subsequent operations
 
-### User Authorization
+### Token Usage
 
-You need to:
-1. Visit the URL shown in the logs
-2. Log in with your Hytale account
-3. Enter the verification code
-4. Authorize the server
+After authorization, tokens are used to:
+- Download server files via `hytale-downloader`
+- Create game sessions for the server
+- Authenticate the server with Hytale's services
 
-### Automatic Persistence
+### Automatic Refresh
 
-Once authorized:
-- The container automatically sends `/auth persistence Encrypted`
-- Credentials are encrypted and stored in the `hytale-home` volume
-- The server is ready to accept connections
+Tokens are automatically refreshed before they expire:
+- **OAuth Access Token**: 1 hour (refreshed 5 min before expiry)
+- **OAuth Refresh Token**: 30 days
+- **Game Session**: 1 hour (refreshed 5 min before expiry)
 
 ### Subsequent Restarts
 
-On restart, the container checks if persistence is working:
-- **If persistence OK**: Logs show "Successfully authenticated from encrypted file" - no action needed
-- **If persistence failed**: Automatically re-runs `/auth login device` to re-authenticate
+On restart, the container:
+1. Loads existing tokens from storage
+2. Refreshes if needed
+3. Creates a new game session
+4. Starts the server with valid tokens
 
 </Steps>
 
-## Authentication Flow
+## Authentication Flow Diagram
 
 ```
-┌─────────────┐                              ┌─────────────┐
-│   Server    │                              │   Hytale    │
-│  Container  │                              │   OAuth2    │
-└──────┬──────┘                              └──────┬──────┘
-       │                                            │
-       │  1. Server boots                           │
-       │                                            │
-       │  2. Auto-send: /auth login device          │
-       │───────────────────────────────────────────>│
-       │                                            │
-       │  3. Device code + URL (shown in logs)      │
-       │<───────────────────────────────────────────│
-       │                                            │
-       │           [User visits URL & authorizes]   │
-       │                                            │
-       │  4. "Authentication successful"            │
-       │<───────────────────────────────────────────│
-       │                                            │
-       │  5. Auto-send: /auth persistence Encrypted │
-       │───────────────────────────────────────────>│
-       │                                            │
-       │  6. Credentials encrypted & stored         │
-       │                                            │
-       ▼  Server ready!                             ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         STARTUP FLOW                                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  1. Load existing tokens (if any)                                           │
+│     └─► ~/.config/hytale/tokens/                                            │
+│                                                                             │
+│  2. If no tokens OR expired → Device Code Flow                              │
+│     ├─► POST /oauth2/device/auth                                            │
+│     ├─► Display URL + code to user                                          │
+│     ├─► Poll /oauth2/token until authorized                                 │
+│     └─► Save tokens                                                         │
+│                                                                             │
+│  3. Write credentials for hytale-downloader                                 │
+│     └─► /server/.cache/.hytale-downloader-credentials.json                  │
+│                                                                             │
+│  4. Download server files (uses saved credentials)                          │
+│                                                                             │
+│  5. Create game session                                                     │
+│     ├─► GET /my-account/get-profiles                                        │
+│     └─► POST /game-session/new → sessionToken + identityToken               │
+│                                                                             │
+│  6. Start server with tokens                                                │
+│     └─► --session-token "..." --identity-token "..."                        │
+│                                                                             │
+│  7. Background daemon refreshes tokens before expiry                        │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Viewing Authentication Status
@@ -87,129 +92,175 @@ On restart, the container checks if persistence is working:
 Check authentication in the logs:
 
 ```bash
-docker compose logs hytale-server | grep -i auth
+docker compose logs hytale | grep -i auth
 ```
 
 **Success indicators:**
-- ✅ `"Successfully authenticated from encrypted file"` - Persistence working
-- ✅ `"Authentication successful"` - Device auth completed
-- ✅ `"Auto-auth complete with encrypted persistence"` - Full auto-auth done
+- ✅ `"OAuth tokens saved"` - Initial auth completed
+- ✅ `"Using existing OAuth token"` - Tokens loaded from storage
+- ✅ `"OAuth token refreshed"` - Token refresh successful
+- ✅ `"Game session created"` - Server ready to accept connections
 
 **Action needed:**
-- ⏳ `"Server ready, sending /auth login device..."` - Check logs for URL
-- ❌ Device URL/code displayed - Complete authorization in browser
+- ⏳ `"DEVICE AUTHORIZATION REQUIRED"` - Check logs for URL and complete auth
 
-## Manual Authentication Commands
+## Environment Variables
 
-If you need to manage authentication manually, attach to the container:
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `AUTO_REFRESH_TOKENS` | `true` | Automatically refresh tokens before expiry |
+| `AUTOSELECT_GAME_PROFILE` | `true` | Auto-select first profile if account has multiple |
+| `HYTALE_SERVER_SESSION_TOKEN` | (empty) | Pre-provided session token (hosting providers) |
+| `HYTALE_SERVER_IDENTITY_TOKEN` | (empty) | Pre-provided identity token (hosting providers) |
 
-```bash
-docker attach hytale-server
+## Profile Selection
+
+If your Hytale account has multiple game profiles, you can control which one the server uses.
+
+### Automatic Selection (Default)
+
+With `AUTOSELECT_GAME_PROFILE=true`, the first profile is automatically selected.
+
+### Manual Selection
+
+Set `AUTOSELECT_GAME_PROFILE=false` to choose which profile to use:
+
+```yaml
+environment:
+  AUTOSELECT_GAME_PROFILE: "false"
 ```
 
-Then use these commands:
+On startup, you'll see:
+
+```
+═══════════════════════════════════════════════════════════
+  PROFILE SELECTION REQUIRED
+═══════════════════════════════════════════════════════════
+  Multiple profiles found. Select one to continue:
+
+  1. PlayerOne (a1b2c3d4...)
+  2. AltAccount (e5f6g7h8...)
+
+  Run: hytale-auth profile select <number>
+═══════════════════════════════════════════════════════════
+```
+
+Select a profile:
+
+```bash
+docker exec -it hytale-server hytale-auth profile select 1
+```
+
+<Callout type="info">
+Your profile selection is saved and persists across restarts.
+</Callout>
+
+## Token Storage
+
+Tokens are stored in the container at:
+
+| File | Purpose |
+|------|---------|
+| `~/.config/hytale/tokens/oauth_tokens.json` | OAuth access & refresh tokens |
+| `~/.config/hytale/tokens/session_tokens.json` | Game session tokens |
+| `~/.config/hytale/tokens/profiles.json` | Cached user profiles |
+| `~/.config/hytale/tokens/selected_profile.json` | Currently selected profile |
+| `/server/.cache/.hytale-downloader-credentials.json` | Credentials for downloader |
+
+<Callout type="info">
+Persist the `hytale-home` volume to keep tokens across container restarts.
+</Callout>
+
+## Authentication CLI
+
+The container includes a CLI tool for manual token management:
+
+```bash
+# Inside container
+docker exec -it hytale-server hytale-auth status
+docker exec -it hytale-server hytale-auth login
+docker exec -it hytale-server hytale-auth profile list
+docker exec -it hytale-server hytale-auth profile select 1
+docker exec -it hytale-server hytale-auth session
+docker exec -it hytale-server hytale-auth logout
+```
 
 | Command | Description |
 |---------|-------------|
-| `/auth status` | Check current authentication status |
-| `/auth login device` | Start device authorization flow |
-| `/auth persistence Encrypted` | Enable encrypted credential storage |
-| `/auth persistence None` | Disable persistence (not recommended) |
-| `/auth logout` | Log out and clear credentials |
+| `hytale-auth login` | Start device code authentication |
+| `hytale-auth refresh` | Refresh OAuth tokens |
+| `hytale-auth session` | Create a new game session |
+| `hytale-auth profile list` | List available game profiles |
+| `hytale-auth profile select <n>` | Select profile by number or UUID |
+| `hytale-auth status` | Show current token status |
+| `hytale-auth export` | Export tokens as environment variables |
+| `hytale-auth logout` | Clear all stored tokens |
 
-<Callout type="warn">
-Press `Ctrl+P` then `Ctrl+Q` to detach from the container without stopping it.
-</Callout>
+## For Hosting Providers
 
-## Persistence Requirements
-
-For encrypted persistence to work across restarts, you need:
-
-### 1. Machine ID (Required)
-
-Mount your host's machine ID:
+If you manage tokens externally (e.g., for multi-server deployments), pass them via environment variables:
 
 ```yaml
-volumes:
-  - /etc/machine-id:/etc/machine-id:ro
+environment:
+  HYTALE_SERVER_SESSION_TOKEN: "eyJhbGciOi..."
+  HYTALE_SERVER_IDENTITY_TOKEN: "eyJhbGciOi..."
 ```
 
+The container will skip the OAuth flow and use these tokens directly.
+
 <Callout type="warn">
-Without `/etc/machine-id`, the encryption key changes on each container restart, breaking persistence.
+Session tokens expire in 1 hour. Your external system must refresh and restart containers with new tokens.
 </Callout>
 
-### 2. Home Volume (Required)
+## Troubleshooting
 
-Persist the home directory where credentials are stored:
+### "Download failed" after auth success
 
+Tokens may not be in the correct format for `hytale-downloader`. Check:
+```bash
+docker exec -it hytale-server cat /server/.cache/.hytale-downloader-credentials.json
+```
+
+### Tokens keep expiring
+
+Ensure the `hytale-home` volume is persisted:
 ```yaml
 volumes:
   - hytale-home:/home/hytale
 ```
 
-## Re-authentication
-
-Re-authentication happens automatically when needed. However, you may need to manually re-authenticate if:
-
-### Persistence Files Corrupted
+### Need to re-authenticate
 
 ```bash
-# Clear auth data and restart
-docker compose down
-docker volume rm hytale-home
-docker compose up -d
-docker compose logs -f
-```
-
-### Machine ID Changed
-
-If your host's `/etc/machine-id` changed:
-1. The encrypted credentials can't be decrypted
-2. Container will automatically re-run device auth
-3. Complete the authorization flow again
-
-### Intentional Logout
-
-```bash
-docker attach hytale-server
-# Type: /auth logout
-# Then press Ctrl+P, Ctrl+Q to detach
+docker exec -it hytale-server hytale-auth logout
 docker compose restart
 ```
-
-## Disabling Auto-Auth
-
-To manage authentication manually:
-
-```yaml
-environment:
-  AUTO_AUTH: "false"
-```
-
-Then use `docker attach` and run `/auth` commands yourself.
-
-## Troubleshooting
-
-### "Authentication required" keeps appearing
-
-1. Check that `/etc/machine-id` is mounted
-2. Verify `hytale-home` volume is persistent
-3. Check logs for "Successfully authenticated from encrypted file"
 
 ### Device code expires (15 minutes)
 
-Complete authorization faster, or:
-
+Complete authorization faster, or restart to get a new code:
 ```bash
 docker compose restart
 docker compose logs -f
 ```
 
-### Can't access authorization URL
+## API Reference
 
-1. Check internet connectivity
-2. Verify firewall isn't blocking Hytale domains
-3. Try accessing from a different device
+The container implements these Hytale OAuth2 endpoints:
+
+| Endpoint | Purpose |
+|----------|---------|
+| `POST /oauth2/device/auth` | Request device code |
+| `POST /oauth2/token` | Exchange/refresh tokens |
+| `GET /my-account/get-profiles` | Get user profiles |
+| `POST /game-session/new` | Create game session |
+| `POST /game-session/refresh` | Refresh game session |
+| `DELETE /game-session` | Terminate session |
+
+Base URLs:
+- OAuth: `https://oauth.accounts.hytale.com`
+- Account: `https://account-data.hytale.com`
+- Sessions: `https://sessions.hytale.com`
 
 ## Next Steps
 

@@ -48,18 +48,11 @@ docker compose logs hytale-server
 
 ## Authentication Issues
 
-### Auto-Auth Not Working
+### OAuth Device Code Not Appearing
 
 **Symptoms:**
-- Server starts but stays unauthenticated
-- No device auth URL appears
-
-**Check AUTO_AUTH is enabled:**
-
-```yaml
-environment:
-  AUTO_AUTH: "true"
-```
+- Server starts but no device auth URL appears
+- Download hangs without auth prompt
 
 **Verify logs:**
 
@@ -67,34 +60,24 @@ environment:
 docker compose logs | grep -i auth
 ```
 
-### Persistence Not Working (Re-auth Every Restart)
+### Tokens Not Persisting (Re-auth Every Restart)
 
 **Symptoms:**
 - Device auth required on every restart
-- Never see "Successfully authenticated from encrypted file"
+- Tokens expire or disappear
 
-**Solutions:**
+**Solution - Persist home directory:**
 
-1. **Mount machine-id:**
-   ```yaml
-   volumes:
-     - /etc/machine-id:/etc/machine-id:ro
-   ```
+```yaml
+volumes:
+  - hytale-home:/home/hytale  # OAuth tokens stored here
+```
 
-2. **Persist home directory:**
-   ```yaml
-   volumes:
-     - hytale-home:/home/hytale
-   ```
+**Check token status:**
 
-3. **Check if auth succeeded:**
-   ```bash
-   docker compose logs | grep "persistence Encrypted"
-   ```
-
-<Callout type="warn">
-Both `/etc/machine-id` AND `hytale-home` volume are required for persistence to work.
-</Callout>
+```bash
+docker exec hytale-server hytale-auth status
+```
 
 ### Device Code Expires
 
@@ -113,39 +96,56 @@ Complete authorization faster this time.
 2. Try accessing URL from a different device
 3. Verify no firewall blocking Hytale domains
 
-## Console/Command Issues
-
-### Commands Don't Work via `docker attach`
+### Profile Selection Required
 
 **Symptoms:**
-- Typing commands shows text but nothing happens
-- Commands appear but server doesn't respond
+- Server waits at "Waiting for profile selection..."
+- Multiple profiles on your Hytale account
 
-**Ensure these settings in docker-compose.yml:**
+**Solution:**
+
+```bash
+# List available profiles
+docker exec -it hytale-server hytale-auth profile list
+
+# Select a profile (by number)
+docker exec -it hytale-server hytale-auth profile select 1
+```
+
+Or enable auto-selection:
 
 ```yaml
-services:
-  hytale:
-    stdin_open: true
-    tty: true
+environment:
+  AUTOSELECT_GAME_PROFILE: "true"
 ```
 
-**Rebuild if settings were changed:**
+## Console/Command Issues
 
-```bash
-docker compose down
-docker compose up -d --build
-```
+### Commands Not Working
 
-### Can't Detach from Container
+**Symptoms:**
+- `hytale-cmd` returns no output
+- Commands don't seem to execute
 
-Press `Ctrl+P` then `Ctrl+Q` (two key sequences, not together).
+**Solutions:**
 
-If that doesn't work, open a new terminal and:
+1. **Check server is running:**
+   ```bash
+   docker compose ps
+   ```
 
-```bash
-docker compose restart
-```
+2. **Check server logs for errors:**
+   ```bash
+   docker compose logs --tail=50
+   ```
+
+3. **Ensure stdin/tty are enabled in docker-compose.yml:**
+   ```yaml
+   services:
+     hytale:
+       stdin_open: true
+       tty: true
+   ```
 
 ## Connection Issues
 
@@ -166,7 +166,7 @@ docker compose restart
 
 3. **Server is authenticated:**
    ```bash
-   docker compose logs | grep "Authentication successful"
+   docker exec hytale-server hytale-auth status
    ```
 
 4. **Firewall allows UDP 5520:**

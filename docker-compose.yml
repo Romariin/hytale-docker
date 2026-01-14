@@ -1,6 +1,7 @@
 services:
   hytale:
-    image: rxmarin/hytale-docker:latest
+    build: .
+    image: hytale-server:local
     container_name: hytale-server
     restart: unless-stopped
     stdin_open: true
@@ -11,15 +12,13 @@ services:
     environment:
       JAVA_OPTS: "-Xms4G -Xmx8G -XX:+UseG1GC"
       SERVER_PORT: "5520"
-      AUTO_UPDATE: "true"
-      AUTO_AUTH: "true"
-      FORCE_UPDATE: "false"
+      PATCHLINE: "release"
       TZ: "UTC"
     
     volumes:
-      - hytale-data:/server # Persist Hytale Server Data
-      - hytale-home:/home/hytale # Persist Hytale Home for Auth Persistence
-      - /etc/machine-id:/etc/machine-id:ro # Required for Auth Persistence Encrypted
+      - hytale-data:/server
+      - hytale-home:/home/hytale
+      - /etc/machine-id:/etc/machine-id:ro
     
     deploy:
       resources:

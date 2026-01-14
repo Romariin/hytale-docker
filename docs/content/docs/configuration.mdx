@@ -25,14 +25,17 @@ The Docker container supports these environment variables:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `AUTO_UPDATE` | `true` | Download server files on startup |
+| `PATCHLINE` | `release` | Server release channel (`release`, `pre-release`, etc.) |
 | `FORCE_UPDATE` | `false` | Re-download even if files exist |
 
 ### Authentication
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `AUTO_AUTH` | `true` | Automatically run device auth flow |
+| `AUTO_REFRESH_TOKENS` | `true` | Automatically refresh tokens before expiry |
+| `AUTOSELECT_GAME_PROFILE` | `true` | Auto-select first profile if account has multiple |
+| `HYTALE_SERVER_SESSION_TOKEN` | (empty) | Pre-provided session token (hosting providers) |
+| `HYTALE_SERVER_IDENTITY_TOKEN` | (empty) | Pre-provided identity token (hosting providers) |
 
 ### Performance
 
@@ -60,15 +63,14 @@ services:
     environment:
       JAVA_OPTS: "-Xms4G -Xmx8G -XX:+UseG1GC"
       SERVER_PORT: "5520"
-      AUTO_UPDATE: "true"
-      AUTO_AUTH: "true"
+      PATCHLINE: "release"
       FORCE_UPDATE: "false"
       TZ: "UTC"
     
     volumes:
-      - hytale-data:/server              # Persist Hytale Server Data
-      - hytale-home:/home/hytale         # Persist Hytale Home for Auth Persistence
-      - /etc/machine-id:/etc/machine-id:ro  # Required for Auth Persistence Encrypted
+      - hytale-data:/server              # Persist server files and world data
+      - hytale-home:/home/hytale         # Persist OAuth tokens and config
+      - /etc/machine-id:/etc/machine-id:ro
     
     deploy:
       resources:
@@ -91,7 +93,7 @@ volumes:
 
 ## Volumes
 
-The container uses three volume mounts:
+The container uses two volume mounts:
 
 ### `hytale-data:/server`
 
@@ -104,18 +106,12 @@ Server files and world data:
 ### `hytale-home:/home/hytale`
 
 User home directory:
-- Authentication credentials (encrypted)
+- OAuth tokens (`~/.config/hytale/tokens/`)
+- Session tokens and profile cache
 - User-specific configuration
 
-### `/etc/machine-id` (Read-only)
-
-Required for encrypted authentication persistence:
-- Provides stable machine identifier
-- Used as encryption key component
-- **Must be mounted read-only**
-
-<Callout type="warn">
-Without `/etc/machine-id`, authentication persistence won't work across restarts.
+<Callout type="info">
+The new OAuth system stores tokens in JSON files, no longer requiring `/etc/machine-id` for encryption.
 </Callout>
 
 ## Memory Allocation
@@ -144,17 +140,12 @@ Set `-Xms` equal to `-Xmx` to prevent heap resizing during runtime.
 
 ## Console Access
 
-Access the server console to run commands:
+Run server commands using the CLI tool:
 
 ```bash
-docker attach hytale-server
+docker exec -it hytale-server hytale-cmd /help
+docker exec -it hytale-server hytale-cmd /list
 ```
-
-Type commands directly (e.g., `/auth status`, `/help`).
-
-<Callout type="info">
-Press `Ctrl+P` then `Ctrl+Q` to detach without stopping the server.
-</Callout>
 
 ## Port Configuration
 

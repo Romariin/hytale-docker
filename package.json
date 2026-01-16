@@ -1,0 +1,30 @@
+{
+  "name": "hytale-docker-runtime",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/main.ts",
+    "cli": "bun run src/hytale.ts",
+    "typecheck": "bun x tsc --noEmit",
+    "fmt": "bunx biome format --write src/",
+    "lint": "bunx biome lint src/",
+    "build": "docker build -t hytale-server:latest .",
+    "build:clean": "docker build --no-cache -t hytale-server:latest .",
+    "build:dev": "docker build -t hytale-server:dev .",
+    "run:docker": "docker run -it --rm -p 5520:5520/udp -v hytale-data:/server --name hytale-server hytale-server:latest",
+    "run:dev": "docker run -it --rm -p 5520:5520/udp -v hytale-data:/server --name hytale-dev hytale-server:dev",
+    "docker:stop": "docker stop hytale-server 2>/dev/null || true; docker rm hytale-server 2>/dev/null || true",
+    "docker:logs": "docker logs -f hytale-server",
+    "docker:shell": "docker exec -it hytale-server sh",
+    "compose:up": "cd examples && docker compose up -d",
+    "compose:down": "cd examples && docker compose down",
+    "compose:logs": "cd examples && docker compose logs -f",
+    "docs": "cd docs && pnpm dev",
+    "docs:build": "cd docs && pnpm build",
+    "clean": "docker stop hytale-server 2>/dev/null || true; docker rm hytale-server 2>/dev/null || true; docker volume rm hytale-data 2>/dev/null || true"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}

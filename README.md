@@ -71,10 +71,72 @@ Topics covered:
 # Build the image locally
 docker build -t hytale-server:latest .
 
+# Run locally with Bun (requires Bun installed)
+bun run src/main.ts
+
 # Run the documentation site
 cd docs
 npm install
 npm run dev
+```
+
+---
+
+## 🧩 Runtime Architecture (Bun + TypeScript)
+
+The runtime has been migrated from Bash to Bun + TypeScript for better maintainability and type safety.
+
+### Project Structure
+
+```
+src/
+├── main.ts              # Entrypoint (replaces scripts/entrypoint.sh)
+├── hytale-auth.ts       # Auth CLI entrypoint
+├── hytale-cmd.ts        # Command CLI entrypoint
+├── types/               # Type definitions
+│   ├── Config.ts        # Configuration types
+│   ├── OAuth.ts         # OAuth token types
+│   ├── Sessions.ts      # Session token types
+│   ├── Profiles.ts      # Profile types
+│   ├── Download.ts      # Downloader types
+│   ├── Server.ts        # Server launch types
+│   └── Logging.ts       # Logger interface
+└── modules/             # Runtime modules
+    ├── Config.ts        # Environment configuration
+    ├── Logger.ts        # Colored console output
+    ├── TokenStore.ts    # Token persistence
+    ├── OAuthClient.ts   # RFC 8628 Device Code Flow
+    ├── ProfileManager.ts# Profile selection
+    ├── SessionManager.ts# Game session lifecycle
+    ├── AuthMonitor.ts   # Background token refresh
+    ├── AuthService.ts   # High-level auth operations
+    ├── AuthCli.ts       # CLI commands
+    ├── VersionService.ts# Update detection
+    ├── DownloadManager.ts# Server download/extraction
+    ├── ServerProcess.ts # Server launch & I/O
+    ├── Preflight.ts     # System checks
+    └── CommandClient.ts # FIFO command sender
+```
+
+### Key Changes from Bash
+
+| Bash | Bun + TypeScript |
+|------|------------------|
+| `curl` | `fetch()` API |
+| `jq` | Native JSON parsing |
+| Shell scripts | Typed modules |
+| `source` includes | ES module imports |
+
+### CLI Usage
+
+```bash
+# Inside container
+hytale-auth login           # Device code auth
+hytale-auth profile list    # List profiles
+hytale-auth profile select 1# Select profile
+hytale-auth session         # Create session
+hytale-auth status          # Token status
+hytale-cmd /help            # Send server command
 ```
 
 ---

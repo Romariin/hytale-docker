@@ -12,7 +12,11 @@ services:
       JAVA_OPTS: "-Xms4G -Xmx8G -XX:+UseG1GC"
       SERVER_PORT: "5520"
       PATCHLINE: "release"
+      AUTO_UPDATE: "false"
       TZ: "UTC"
+      # CurseForge Mods (optional)
+      # CF_API_KEY: "your-curseforge-api-key"
+      # CF_MODS: "123456,789012:4567890"  # projectId or projectId:fileId
     
     volumes:
       - hytale-data:/server

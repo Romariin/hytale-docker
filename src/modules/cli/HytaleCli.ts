@@ -4,6 +4,7 @@ import type { ILogger } from "../../types";
 import type { Config } from "../core/Config";
 import type { TokenStore, OAuthClient, ProfileManager, SessionManager, AuthService } from "../auth";
 import { CurseForgeManager } from "../server/CurseForgeManager";
+import type { UpdateManager } from "../server/UpdateManager";
 
 const IPC_SOCKET_PATH = "/tmp/hytale.sock";
 const PENDING_UPDATE_FILE = "/server/.pending_update";
@@ -30,6 +31,7 @@ export class HytaleCli {
     private readonly profileManager: ProfileManager,
     private readonly sessionManager: SessionManager,
     private readonly authService: AuthService,
+    private readonly updateManager?: UpdateManager,
   ) {}
 
   async run(argv: string[]): Promise<void> {
@@ -96,6 +98,7 @@ Examples:
   hytale auth profile list
   hytale cmd /help
   hytale mods list
+  hytale update check
   hytale update schedule
 `);
   }
@@ -366,7 +369,7 @@ Examples:
   // ─────────────────────────────────────────────────────────────────────────
 
   private async handleUpdate(parsed: ParsedArgs): Promise<void> {
-    const subCommand = parsed.args.shift() as "schedule" | "cancel" | "status" | undefined;
+    const subCommand = parsed.args.shift() as "schedule" | "cancel" | "status" | "check" | undefined;
 
     if (parsed.help || !subCommand) {
       this.printUpdateUsage();
@@ -380,6 +383,8 @@ Examples:
         return this.updateCancel();
       case "status":
         return this.updateStatus();
+      case "check":
+        return this.updateCheck(parsed.json);
       default:
         this.logger.error(`Unknown update command: ${subCommand}`);
         this.printUpdateUsage();
@@ -393,14 +398,20 @@ Hytale Server Update
 Usage: hytale update <command>
 
 Commands:
+  check       Check if updates are available for downloader and server
   schedule    Schedule an update for the next container restart
   cancel      Cancel a scheduled update
   status      Check if an update is scheduled
+
+Options:
+  --json      Output JSON (check command)
 
 Note: If AUTO_UPDATE=true, updates happen automatically.
       Use this to manually trigger updates when AUTO_UPDATE=false.
 
 Examples:
+  hytale update check
+  hytale update check --json
   hytale update schedule
   hytale update status
   hytale update cancel
@@ -442,6 +453,67 @@ Examples:
     } else {
       this.logger.info("No update scheduled");
       this.logger.info("Run 'hytale update schedule' to schedule an update");
+    }
+  }
+
+  private async updateCheck(json: boolean): Promise<void> {
+    if (!this.updateManager) {
+      this.logger.error("Update checking is not available in this environment");
+      process.exit(1);
+    }
+
+    this.logger.step("Checking for updates...");
+
+    const [downloaderResult, serverResult] = await Promise.all([
+      this.updateManager.checkDownloaderUpdate(),
+      this.updateManager.checkServerUpdate(),
+    ]);
+
+    if (json) {
+      console.log(
+        JSON.stringify(
+          {
+            downloader: downloaderResult,
+            server: serverResult,
+            hasUpdates: downloaderResult.updateAvailable || serverResult.updateAvailable,
+          },
+          null,
+          2,
+        ),
+      );
+      return;
+    }
+
+    // Human-readable output
+    console.log("\nUpdate Status:\n" + "─".repeat(50));
+
+    // Downloader
+    if (downloaderResult.updateAvailable) {
+      this.logger.warn(
+        `⚠️  Downloader: ${downloaderResult.currentVersion ?? "not installed"} → ${downloaderResult.latestVersion}`,
+      );
+    } else {
+      this.logger.success(`✅ Downloader: ${downloaderResult.currentVersion ?? "not installed"} (up to date)`);
+    }
+
+    // Server
+    if (serverResult.updateAvailable) {
+      this.logger.warn(
+        `⚠️  Server: ${serverResult.currentVersion ?? "not installed"} → ${serverResult.latestVersion}`,
+      );
+    } else {
+      this.logger.success(`✅ Server: ${serverResult.currentVersion ?? "not installed"} (up to date)`);
+    }
+
+    console.log("");
+
+    if (downloaderResult.updateAvailable || serverResult.updateAvailable) {
+      if (this.config.autoUpdate) {
+        this.logger.info("AUTO_UPDATE=true - updates will apply on next restart");
+      } else {
+        this.logger.info("Run 'hytale update schedule' to schedule the update");
+        this.logger.info("Or set AUTO_UPDATE=true to enable automatic updates");
+      }
     }
   }
 

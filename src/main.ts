@@ -89,8 +89,8 @@ async function main(): Promise<void> {
     await cfManager.syncMods(modEntries);
   }
 
-  // Session
-  let session = await authService.ensureValidSession();
+  // Session - Always create fresh session on startup to avoid stale tokens
+  let session = await authService.ensureValidSession(true);
 
   if (!session) {
     logger.warn("Waiting for profile selection...");
@@ -101,7 +101,7 @@ async function main(): Promise<void> {
       const selected = await tokenStore.loadSelectedProfile();
       if (selected) {
         logger.success(`Profile selected: ${selected.username}`);
-        session = await authService.ensureValidSession();
+        session = await authService.ensureValidSession(true);
       }
     }
   }

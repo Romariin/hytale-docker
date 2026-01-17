@@ -41,20 +41,24 @@ export class AuthService {
 
   /**
    * Ensure a valid game session exists
+   * For server startup, always creates a fresh session to avoid stale token issues
    */
-  async ensureValidSession(): Promise<SessionTokens | null> {
+  async ensureValidSession(forceNew = false): Promise<SessionTokens | null> {
     const session = await this.tokenStore.loadSessionTokens();
 
-    if (session && !this.sessionManager.isExpiring(session.expiresEpoch)) {
+    // If not forcing new and session is valid, try to use/refresh it
+    if (!forceNew && session && !this.sessionManager.isExpiring(session.expiresEpoch)) {
       this.logger.info("Session tokens valid");
       return session;
     }
 
-    if (session) {
+    // If we have a session, try to refresh it first (only if not forcing new)
+    if (!forceNew && session) {
       const refreshed = await this.sessionManager.refresh(session.sessionToken);
       if (refreshed) return refreshed;
     }
 
+    // Otherwise, create a new session
     const oauth = await this.tokenStore.loadOAuthTokens();
     if (!oauth) {
       this.logger.error("No valid tokens available. Run device auth flow.");

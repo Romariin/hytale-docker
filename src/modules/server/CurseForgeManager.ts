@@ -43,11 +43,15 @@ interface ModsManifest {
  */
 export class CurseForgeManager {
   private readonly manifestPath = join(MODS_DIR, ".curseforge-manifest.json");
+  private readonly apiKey: string;
 
   constructor(
     private readonly logger: ILogger,
-    private readonly apiKey: string,
-  ) {}
+    apiKey: string,
+  ) {
+    // Unescape $ characters that were escaped to avoid shell variable expansion
+    this.apiKey = apiKey.replace(/\\\$/g, "$");
+  }
 
   /**
    * Parse CF_MODS environment variable

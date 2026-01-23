@@ -10,10 +10,10 @@ importers:
     dependencies:
       '@ai-sdk/openai-compatible':
         specifier: ^2.0.4
-        version: 2.0.9(zod@4.3.5)
+        version: 2.0.13(zod@4.3.5)
       '@ai-sdk/react':
         specifier: ^3.0.23
-        version: 3.0.35(react@19.2.3)(zod@4.3.5)
+        version: 3.0.44(react@19.2.3)(zod@4.3.5)
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.71.1(react@19.2.3))
@@ -100,7 +100,7 @@ importers:
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       ai:
         specifier: ^6.0.23
-        version: 6.0.33(zod@4.3.5)
+        version: 6.0.42(zod@4.3.5)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -139,7 +139,7 @@ importers:
         version: 0.562.0(react@19.2.3)
       motion:
         specifier: ^12.26.1
-        version: 12.26.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 12.27.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       next:
         specifier: 16.1.1
         version: 16.1.1(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -209,7 +209,7 @@ importers:
         version: 2.0.13
       '@types/node':
         specifier: ^25.0.3
-        version: 25.0.8
+        version: 25.0.9
       '@types/react':
         specifier: ^19.2.7
         version: 19.2.8
@@ -234,30 +234,30 @@ importers:
 
 packages:
 
-  '@ai-sdk/gateway@3.0.13':
-    resolution: {integrity: sha512-g7nE4PFtngOZNZSy1lOPpkC+FAiHxqBJXqyRMEG7NUrEVZlz5goBdtHg1YgWRJIX776JTXAmbOI5JreAKVAsVA==}
+  '@ai-sdk/gateway@3.0.17':
+    resolution: {integrity: sha512-mCz50GlBPyBV96Wcll1Mpaz56MVFuHL+bwRWGkIsCJwKAKIfdgUZecFzS3gckpHGaqP5+BYnmyJocIMzUhTQ2A==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/openai-compatible@2.0.9':
-    resolution: {integrity: sha512-FsiuFgLWs3tTjGno0s9vrjOzJaR7W7YUGJ45kYrHc7U0mqRSMf2eU0VEdfEA4Aff1X0mcfB4MT+WfCwoNIYJpA==}
+  '@ai-sdk/openai-compatible@2.0.13':
+    resolution: {integrity: sha512-DShpuHZ9wiy3QtxJ4/Uq5csLxgNgeA3w58isYhZ34pSod2cBlRmJl3EyQzxZ1HD8e6sQDa9fvc0cwF5/EugBMw==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/provider-utils@4.0.5':
-    resolution: {integrity: sha512-Ow/X/SEkeExTTc1x+nYLB9ZHK2WUId8+9TlkamAx7Tl9vxU+cKzWx2dwjgMHeCN6twrgwkLrrtqckQeO4mxgVA==}
+  '@ai-sdk/provider-utils@4.0.8':
+    resolution: {integrity: sha512-ns9gN7MmpI8vTRandzgz+KK/zNMLzhrriiKECMt4euLtQFSBgNfydtagPOX4j4pS1/3KvHF6RivhT3gNQgBZsg==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/provider@3.0.2':
-    resolution: {integrity: sha512-HrEmNt/BH/hkQ7zpi2o6N3k1ZR1QTb7z85WYhYygiTxOQuaml4CMtHCWRbric5WPU+RNsYI7r1EpyVQMKO1pYw==}
+  '@ai-sdk/provider@3.0.4':
+    resolution: {integrity: sha512-5KXyBOSEX+l67elrEa+wqo/LSsSTtrPj9Uoh3zMbe/ceQX4ucHI3b9nUEfNkGF3Ry1svv90widAt+aiKdIJasQ==}
     engines: {node: '>=18'}
 
-  '@ai-sdk/react@3.0.35':
-    resolution: {integrity: sha512-PEMUNieLOZw3RiLtDki+V/81slug6xUyv2+D7u/BNKxxt9Ik7wzFKrFNtIzE51qLvsehVLgNPxDmHP3j98/JDA==}
+  '@ai-sdk/react@3.0.44':
+    resolution: {integrity: sha512-TiCzQMRJZ8ASZjemz9eeX0/C5f6G1boRhrxVE3aNKvpuO/RUVQvkHsCIiJF3JgCyCEgQo//BqrXah1aSqgKDDA==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
@@ -1564,8 +1564,8 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@25.0.8':
-    resolution: {integrity: sha512-powIePYMmC3ibL0UJ2i2s0WIbq6cg6UyVFQxSCpaPxxzAaziRfimGivjdF943sSGV6RADVbk0Nvlm5P/FB44Zg==}
+  '@types/node@25.0.9':
+    resolution: {integrity: sha512-/rpCXHlCWeqClNBwUhDcusJxXYDjZTyE8v5oTO7WbL8eij2nKhUeU89/6xgjU7N4/Vh3He0BtyhJdQbDyhiXAw==}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
@@ -1607,8 +1607,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  ai@6.0.33:
-    resolution: {integrity: sha512-bVokbmy2E2QF6Efl+5hOJx5MRWoacZ/CZY/y1E+VcewknvGlgaiCzMu8Xgddz6ArFJjiMFNUPHKxAhIePE4rmg==}
+  ai@6.0.42:
+    resolution: {integrity: sha512-o+MVN7HBE4HEnhtN7nBt9WO1iISI6svyWNoOuY6WiXCdHuZfSGN4MUQ3QwjWz1Ue5gtBEcvwX5XFhgAwlPAxxw==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -1627,8 +1627,8 @@ packages:
   bail@2.0.2:
     resolution: {integrity: sha512-0xO6mYd7JB2YesxDKplafRpsiOzPt9V02ddPCLbY1xYGPOX24NTyN50qnUxgCPcSoYMhKpAuBTjQoRZCAkUDRw==}
 
-  baseline-browser-mapping@2.9.14:
-    resolution: {integrity: sha512-B0xUquLkiGLgHhpPBqvl7GWegWBUNuujQ6kXd/r1U38ElPT6Ok8KZ8e+FpUGEc2ZoRQUzq/aUnaKFc/svWUGSg==}
+  baseline-browser-mapping@2.9.15:
+    resolution: {integrity: sha512-kX8h7K2srmDyYnXRIppo4AH/wYgzWVCs+eKr3RusRSQ5PvRYoEFmR/I0PbdTjKFAoKqp5+kbxnNTFO9jOfSVJg==}
     hasBin: true
 
   bezier-js@6.1.4:
@@ -1639,8 +1639,8 @@ packages:
     peerDependencies:
       react: '>=17.0.1'
 
-  caniuse-lite@1.0.30001764:
-    resolution: {integrity: sha512-9JGuzl2M+vPL+pz70gtMF9sHdMFbY9FJaQBi186cHKH3pSzDvzoUJUPV6fqiKIMyXbud9ZLg4F3Yza1vJ1+93g==}
+  caniuse-lite@1.0.30001765:
+    resolution: {integrity: sha512-LWcNtSyZrakjECqmpP4qdg0MMGdN368D7X8XvvAqOcqMv0RxnlqVKZl2V6/mBR68oYMxOZPLw/gO7DuisMHUvQ==}
 
   canvas-color-tracker@1.3.2:
     resolution: {integrity: sha512-ryQkDX26yJ3CXzb3hxUVNlg1NKE4REc5crLBq661Nxzr8TNd236SaEf2ffYLXyI5tSABSeguHLqcVq4vf9L3Zg==}
@@ -1729,8 +1729,8 @@ packages:
     resolution: {integrity: sha512-zxV/SsA+U4yte8051P4ECydjD/S+qeYtnaIyAs9tgHCqfguma/aAQDjo85A9Z6EKhBirHRJHXIgJUlffT4wdLg==}
     engines: {node: '>=12'}
 
-  d3-format@3.1.1:
-    resolution: {integrity: sha512-ryitBnaRbXQtgZ/gU50GSn6jQRwinSCQclpakXymvLd8ytTgE5bmSfgYcUxD7XYL34qHhFDyVk71qqKsfSyvmA==}
+  d3-format@3.1.2:
+    resolution: {integrity: sha512-AJDdYOdnyRDV5b6ArilzCPPwc1ejkHcoyFarqlPqT7zRYjhavcT3uSrqcMvsgh2CgoPbK3RCwyHaVyxYcP2Arg==}
     engines: {node: '>=12'}
 
   d3-interpolate@3.0.1:
@@ -1804,8 +1804,8 @@ packages:
   decimal.js-light@2.5.1:
     resolution: {integrity: sha512-qIMFpTMZmny+MMIitAB6D7iVPEorVw6YQRWkvarTkT4tBeSLLiHzcwj6q0MmYSFCiVpiqPJTJEYIrpcPzVEIvg==}
 
-  decode-named-character-reference@1.2.0:
-    resolution: {integrity: sha512-c6fcElNV6ShtZXmsgNgFFV5tVX2PaV4g+MOAkb8eXHvn6sryJBrZa9r0zV6+dtTyoCKxtDy5tyQ5ZwQuidtd+Q==}
+  decode-named-character-reference@1.3.0:
+    resolution: {integrity: sha512-GtpQYB283KrPp6nRw50q3U9/VfOutZOe103qlN7BPP6Ad27xYnOIWv4lPzo8HCAL+mMZofJ9KEy30fq6MfaK6Q==}
 
   dequal@2.0.3:
     resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
@@ -1911,8 +1911,8 @@ packages:
     resolution: {integrity: sha512-aTnihCmiMA0ItLJLCbrQYS9mzriopW24goFPgUnKAAmAlPogTSmFWqoBPMXzIfPb7bs04Hur5zEI4WYgLW3Sig==}
     engines: {node: '>=12'}
 
-  framer-motion@12.26.2:
-    resolution: {integrity: sha512-lflOQEdjquUi9sCg5Y1LrsZDlsjrHw7m0T9Yedvnk7Bnhqfkc89/Uha10J3CFhkL+TCZVCRw9eUGyM/lyYhXQA==}
+  framer-motion@12.27.1:
+    resolution: {integrity: sha512-cEAqO69kcZt3gL0TGua8WTgRQfv4J57nqt1zxHtLKwYhAwA0x9kDS/JbMa1hJbwkGY74AGJKvZ9pX/IqWZtZWQ==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -2347,14 +2347,14 @@ packages:
   micromark@4.0.2:
     resolution: {integrity: sha512-zpe98Q6kvavpCr1NPVSCMebCKfD7CA2NqZ+rykeNhONIJBpc1tFKt9hucLGwha3jNTNI8lHpctWJWoimVF4PfA==}
 
-  motion-dom@12.26.2:
-    resolution: {integrity: sha512-KLMT1BroY8oKNeliA3JMNJ+nbCIsTKg6hJpDb4jtRAJ7nCKnnpg/LTq/NGqG90Limitz3kdAnAVXecdFVGlWTw==}
+  motion-dom@12.27.1:
+    resolution: {integrity: sha512-V/53DA2nBqKl9O2PMJleSUb/G0dsMMeZplZwgIQf5+X0bxIu7Q1cTv6DrjvTTGYRm3+7Y5wMlRZ1wT61boU/bQ==}
 
   motion-utils@12.24.10:
     resolution: {integrity: sha512-x5TFgkCIP4pPsRLpKoI86jv/q8t8FQOiM/0E8QKBzfMozWHfkKap2gA1hOki+B5g3IsBNpxbUnfOum1+dgvYww==}
 
-  motion@12.26.2:
-    resolution: {integrity: sha512-2Q6g0zK1gUJKhGT742DAe42LgietcdiJ3L3OcYAHCQaC1UkLnn6aC8S/obe4CxYTLAgid2asS1QdQ/blYfo5dw==}
+  motion@12.27.1:
+    resolution: {integrity: sha512-FAZTPDm1LccBdWSL46WLnEdTSHmdVx+fdWK8f61qBQn67MmFefXLXlrwy94rK2DDsd9A50Gj8H+LYCgQ/cQlFg==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -2807,34 +2807,34 @@ packages:
 
 snapshots:
 
-  '@ai-sdk/gateway@3.0.13(zod@4.3.5)':
+  '@ai-sdk/gateway@3.0.17(zod@4.3.5)':
     dependencies:
-      '@ai-sdk/provider': 3.0.2
-      '@ai-sdk/provider-utils': 4.0.5(zod@4.3.5)
+      '@ai-sdk/provider': 3.0.4
+      '@ai-sdk/provider-utils': 4.0.8(zod@4.3.5)
       '@vercel/oidc': 3.1.0
       zod: 4.3.5
 
-  '@ai-sdk/openai-compatible@2.0.9(zod@4.3.5)':
+  '@ai-sdk/openai-compatible@2.0.13(zod@4.3.5)':
     dependencies:
-      '@ai-sdk/provider': 3.0.2
-      '@ai-sdk/provider-utils': 4.0.5(zod@4.3.5)
+      '@ai-sdk/provider': 3.0.4
+      '@ai-sdk/provider-utils': 4.0.8(zod@4.3.5)
       zod: 4.3.5
 
-  '@ai-sdk/provider-utils@4.0.5(zod@4.3.5)':
+  '@ai-sdk/provider-utils@4.0.8(zod@4.3.5)':
     dependencies:
-      '@ai-sdk/provider': 3.0.2
+      '@ai-sdk/provider': 3.0.4
       '@standard-schema/spec': 1.1.0
       eventsource-parser: 3.0.6
       zod: 4.3.5
 
-  '@ai-sdk/provider@3.0.2':
+  '@ai-sdk/provider@3.0.4':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@3.0.35(react@19.2.3)(zod@4.3.5)':
+  '@ai-sdk/react@3.0.44(react@19.2.3)(zod@4.3.5)':
     dependencies:
-      '@ai-sdk/provider-utils': 4.0.5(zod@4.3.5)
-      ai: 6.0.33(zod@4.3.5)
+      '@ai-sdk/provider-utils': 4.0.8(zod@4.3.5)
+      ai: 6.0.42(zod@4.3.5)
       react: 19.2.3
       swr: 2.3.8(react@19.2.3)
       throttleit: 2.1.0
@@ -4034,7 +4034,7 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@25.0.8':
+  '@types/node@25.0.9':
     dependencies:
       undici-types: 7.16.0
 
@@ -4066,11 +4066,11 @@ snapshots:
 
   acorn@8.15.0: {}
 
-  ai@6.0.33(zod@4.3.5):
+  ai@6.0.42(zod@4.3.5):
     dependencies:
-      '@ai-sdk/gateway': 3.0.13(zod@4.3.5)
-      '@ai-sdk/provider': 3.0.2
-      '@ai-sdk/provider-utils': 4.0.5(zod@4.3.5)
+      '@ai-sdk/gateway': 3.0.17(zod@4.3.5)
+      '@ai-sdk/provider': 3.0.4
+      '@ai-sdk/provider-utils': 4.0.8(zod@4.3.5)
       '@opentelemetry/api': 1.9.0
       zod: 4.3.5
 
@@ -4084,7 +4084,7 @@ snapshots:
 
   bail@2.0.2: {}
 
-  baseline-browser-mapping@2.9.14: {}
+  baseline-browser-mapping@2.9.15: {}
 
   bezier-js@6.1.4: {}
 
@@ -4095,7 +4095,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  caniuse-lite@1.0.30001764: {}
+  caniuse-lite@1.0.30001765: {}
 
   canvas-color-tracker@1.3.2:
     dependencies:
@@ -4176,7 +4176,7 @@ snapshots:
       d3-quadtree: 3.0.1
       d3-timer: 3.0.1
 
-  d3-format@3.1.1: {}
+  d3-format@3.1.2: {}
 
   d3-interpolate@3.0.1:
     dependencies:
@@ -4196,7 +4196,7 @@ snapshots:
   d3-scale@4.0.2:
     dependencies:
       d3-array: 3.2.4
-      d3-format: 3.1.1
+      d3-format: 3.1.2
       d3-interpolate: 3.0.1
       d3-time: 3.1.0
       d3-time-format: 4.1.0
@@ -4244,7 +4244,7 @@ snapshots:
 
   decimal.js-light@2.5.1: {}
 
-  decode-named-character-reference@1.2.0:
+  decode-named-character-reference@1.3.0:
     dependencies:
       character-entities: 2.0.2
 
@@ -4398,9 +4398,9 @@ snapshots:
       kapsule: 1.16.3
       lodash-es: 4.17.22
 
-  framer-motion@12.26.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+  framer-motion@12.27.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
-      motion-dom: 12.26.2
+      motion-dom: 12.27.1
       motion-utils: 12.24.10
       tslib: 2.8.1
     optionalDependencies:
@@ -4688,7 +4688,7 @@ snapshots:
     dependencies:
       '@types/mdast': 4.0.4
       '@types/unist': 3.0.3
-      decode-named-character-reference: 1.2.0
+      decode-named-character-reference: 1.3.0
       devlop: 1.1.0
       mdast-util-to-string: 4.0.0
       micromark: 4.0.2
@@ -4842,7 +4842,7 @@ snapshots:
 
   micromark-core-commonmark@2.0.3:
     dependencies:
-      decode-named-character-reference: 1.2.0
+      decode-named-character-reference: 1.3.0
       devlop: 1.1.0
       micromark-factory-destination: 2.0.1
       micromark-factory-label: 2.0.1
@@ -5038,7 +5038,7 @@ snapshots:
 
   micromark-util-decode-string@2.0.1:
     dependencies:
-      decode-named-character-reference: 1.2.0
+      decode-named-character-reference: 1.3.0
       micromark-util-character: 2.1.1
       micromark-util-decode-numeric-character-reference: 2.0.2
       micromark-util-symbol: 2.0.1
@@ -5086,7 +5086,7 @@ snapshots:
     dependencies:
       '@types/debug': 4.1.12
       debug: 4.4.3
-      decode-named-character-reference: 1.2.0
+      decode-named-character-reference: 1.3.0
       devlop: 1.1.0
       micromark-core-commonmark: 2.0.3
       micromark-factory-space: 2.0.1
@@ -5104,15 +5104,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  motion-dom@12.26.2:
+  motion-dom@12.27.1:
     dependencies:
       motion-utils: 12.24.10
 
   motion-utils@12.24.10: {}
 
-  motion@12.26.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+  motion@12.27.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
-      framer-motion: 12.26.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      framer-motion: 12.27.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       tslib: 2.8.1
     optionalDependencies:
       react: 19.2.3
@@ -5133,8 +5133,8 @@ snapshots:
     dependencies:
       '@next/env': 16.1.1
       '@swc/helpers': 0.5.15
-      baseline-browser-mapping: 2.9.14
-      caniuse-lite: 1.0.30001764
+      baseline-browser-mapping: 2.9.15
+      caniuse-lite: 1.0.30001765
       postcss: 8.4.31
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
@@ -5171,7 +5171,7 @@ snapshots:
       '@types/unist': 2.0.11
       character-entities-legacy: 3.0.0
       character-reference-invalid: 2.0.1
-      decode-named-character-reference: 1.2.0
+      decode-named-character-reference: 1.3.0
       is-alphanumerical: 2.0.1
       is-decimal: 2.0.1
       is-hexadecimal: 2.0.1

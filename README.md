@@ -98,7 +98,7 @@ Auto-sync mods from CurseForge:
 
 ```yaml
 environment:
-  CF_API_KEY: "${CF_API_KEY}"  # From .env file
+  CF_API_KEY: "${CF_API_KEY}"  # From .env file  #NOTE: $ needs to be escaped via $$ syntax or you might get 403 errors in the logs.
   CF_MODS: "123456,789012"
 ```
 

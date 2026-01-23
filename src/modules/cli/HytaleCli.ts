@@ -3,7 +3,6 @@ import { writeFile, unlink } from "node:fs/promises";
 import type { ILogger } from "../../types";
 import type { Config } from "../core/Config";
 import type { TokenStore, OAuthClient, ProfileManager, SessionManager, AuthService } from "../auth";
-import { CurseForgeManager } from "../server/CurseForgeManager";
 
 const IPC_SOCKET_PATH = "/tmp/hytale.sock";
 const PENDING_UPDATE_FILE = "/server/.pending_update";
@@ -470,78 +469,82 @@ Examples:
 
   private printModsUsage(): void {
     console.log(`
-Hytale CurseForge Mods
+Hytale Mods Management
 
 Usage: hytale mods <command>
 
 Commands:
-  list                  List installed CurseForge mods
-  update <projectId>    Force update a specific mod to latest version
+  list                  List installed mods (CurseForge and Modtale)
 
 Environment:
-  CF_API_KEY    CurseForge API key (required)
-  CF_MODS       Comma-separated mod list in docker-compose.yml
+  CF_API_KEY    CurseForge API key
+  CF_MODS       Comma-separated CurseForge mod list
+  MT_API_KEY    Modtale API key
+  MT_MODS       Comma-separated Modtale mod list
 
 Examples:
   hytale mods list
-  hytale mods update 123456
 `);
-  }
-
-  private getCurseForgeManager(): CurseForgeManager {
-    if (!this.config.cfApiKey) {
-      this.logger.error("CF_API_KEY environment variable not set");
-      process.exit(1);
-    }
-    return new CurseForgeManager(this.logger, this.config.cfApiKey);
   }
 
   private async modsList(): Promise<void> {
     const { readFile } = await import("node:fs/promises");
     const { existsSync } = await import("node:fs");
 
-    const manifestPath = "/server/mods/.curseforge-manifest.json";
+    const cfManifestPath = "/server/mods/.curseforge-manifest.json";
+    const mtManifestPath = "/server/mods/.modtale-manifest.json";
 
-    if (!existsSync(manifestPath)) {
-      this.logger.info("No CurseForge mods installed");
-      return;
+    let hasMods = false;
+
+    // List CurseForge mods
+    if (existsSync(cfManifestPath)) {
+      try {
+        const content = await readFile(cfManifestPath, "utf-8");
+        const manifest = JSON.parse(content) as {
+          mods: Array<{ projectId: string; version: string; fileName: string; installedAt: string }>;
+        };
+
+        if (manifest.mods.length > 0) {
+          hasMods = true;
+          console.log("\nInstalled CurseForge Mods:\n" + "─".repeat(50));
+          for (const mod of manifest.mods) {
+            console.log(`  ${mod.projectId}:${mod.version} → ${mod.fileName}`);
+          }
+          console.log("");
+        }
+      } catch {
+        this.logger.error("Failed to read CurseForge manifest");
+      }
     }
 
-    try {
-      const content = await readFile(manifestPath, "utf-8");
-      const manifest = JSON.parse(content) as { mods: Array<{ projectId: number; fileId: number; fileName: string; installedAt: string }> };
+    // List Modtale mods
+    if (existsSync(mtManifestPath)) {
+      try {
+        const content = await readFile(mtManifestPath, "utf-8");
+        const manifest = JSON.parse(content) as {
+          mods: Array<{ projectId: string; version: string; fileName: string; installedAt: string }>;
+        };
 
-      if (manifest.mods.length === 0) {
-        this.logger.info("No CurseForge mods installed");
-        return;
+        if (manifest.mods.length > 0) {
+          hasMods = true;
+          console.log("\nInstalled Modtale Mods:\n" + "─".repeat(50));
+          for (const mod of manifest.mods) {
+            console.log(`  ${mod.projectId}:${mod.version} → ${mod.fileName}`);
+          }
+          console.log("");
+        }
+      } catch {
+        this.logger.error("Failed to read Modtale manifest");
       }
+    }
 
-      console.log("\nInstalled CurseForge Mods:\n" + "─".repeat(50));
-      for (const mod of manifest.mods) {
-        console.log(`  ${mod.projectId}:${mod.fileId} → ${mod.fileName}`);
-      }
-      console.log("");
-    } catch {
-      this.logger.error("Failed to read mod manifest");
+    if (!hasMods) {
+      this.logger.info("No mods installed");
     }
   }
 
-  private async modsUpdate(args: string[]): Promise<void> {
-    const projectIdStr = args[0];
-    if (!projectIdStr) {
-      this.logger.error("Specify a project ID to update");
-      process.exit(1);
-    }
-
-    const projectId = Number.parseInt(projectIdStr, 10);
-    if (Number.isNaN(projectId)) {
-      this.logger.error("Invalid project ID");
-      process.exit(1);
-    }
-
-    const cfManager = this.getCurseForgeManager();
-
-    // Force update by syncing with fileId set to null (latest)
-    await cfManager.updateMod(projectId);
+  private async modsUpdate(_args: string[]): Promise<void> {
+    this.logger.info("Mod updates are handled automatically by the sync process");
+    this.logger.info("Configure mods in docker-compose.yml with CF_MODS or MT_MODS");
   }
 }

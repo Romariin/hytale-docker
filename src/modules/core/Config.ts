@@ -31,6 +31,9 @@ export class Config {
   // CurseForge mod support
   readonly cfApiKey: string | null;
   readonly cfMods: string;
+  // Modtale mod support
+  readonly mtApiKey: string | null;
+  readonly mtMods: string;
 
   constructor(env: RuntimeEnv = process.env) {
     const tokenDir = env.HYTALE_TOKEN_DIR ?? `${SERVER_DIR}/.hytale/tokens`;
@@ -65,5 +68,8 @@ export class Config {
     // CurseForge mod support
     this.cfApiKey = env.CF_API_KEY ?? null;
     this.cfMods = env.CF_MODS ?? "";
+    // Modtale mod support
+    this.mtApiKey = env.MT_API_KEY ?? null;
+    this.mtMods = env.MT_MODS ?? "";
   }
 }

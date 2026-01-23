@@ -17,6 +17,9 @@ export interface RuntimeEnv {
   // CurseForge mod support
   CF_API_KEY?: string;
   CF_MODS?: string;
+  // Modtale mod support
+  MT_API_KEY?: string;
+  MT_MODS?: string;
 }
 
 /**

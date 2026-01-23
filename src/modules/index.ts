@@ -5,7 +5,10 @@ export { Config, Logger } from "./core";
 export { AuthService, OAuthClient, ProfileManager, SessionManager, TokenStore } from "./auth";
 
 // Server
-export { CurseForgeManager, DownloadManager, ServerProcess, UpdateManager, VersionService } from "./server";
+export { DownloadManager, ServerProcess, UpdateManager, VersionService } from "./server";
+
+// Mods
+export { ModManager, parseCurseForgeConfig, parseModtaleConfig } from "./mods";
 
 // CLI
 export { AuthCli, HytaleCli } from "./cli";

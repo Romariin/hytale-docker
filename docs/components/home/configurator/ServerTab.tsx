@@ -140,7 +140,7 @@ export function ServerTab({ config, onConfigChange }: ServerTabProps) {
 				<Label>Default Game Mode</Label>
 				<Select
 					value={config.defaultGameMode}
-					onValueChange={(value: 'Adventure' | 'Creative' | 'Survival') =>
+					onValueChange={(value: 'Adventure' | 'Creative') =>
 						onConfigChange({ defaultGameMode: value })
 					}
 				>

@@ -57,13 +57,7 @@ export async function POST(request: NextRequest) {
       name: project.title,
       slug: project.id, // Use ID as slug since API doesn't provide slug
       summary: project.description || '',
-      downloads:
-        project.downloads ??
-        project.downloadCount ??
-        project.totalDownloads ??
-        project.downloadsCount ??
-        project.stats?.downloads ??
-        0,
+      downloads: project.downloadCount || 0,
       imageUrl: project.imageUrl,
       tags: project.tags || [],
       versions: [], // Versions require separate API call

@@ -20,6 +20,20 @@ All configuration is done through environment variables in your `docker-compose.
 | `TZ` | `UTC` | Container timezone |
 | `EXTRA_ARGS` | (empty) | Additional server arguments |
 
+### Server Configuration
+
+These override fields in `/server/Server/config.json` on startup.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SERVER_NAME` | (empty) | Server name (`ServerName`) |
+| `MOTD` | (empty) | Message of the day (`MOTD`) |
+| `PASSWORD` | (empty) | Server password (`Password`) |
+| `MAX_PLAYERS` | (empty) | Max players (`MaxPlayers`) |
+| `MAX_VIEW_RADIUS` | (empty) | Max view radius (`MaxViewRadius`) |
+| `DEFAULT_WORLD` | (empty) | Default world (`Defaults.World`) |
+| `DEFAULT_GAME_MODE` | (empty) | Default game mode (`Defaults.GameMode`) |
+
 ### Updates
 
 | Variable | Default | Description |
@@ -56,6 +70,15 @@ With `AUTO_UPDATE=false`, use `hytale update schedule` to manually trigger updat
 | `CF_MODS` | (empty) | Comma-separated mod project IDs |
 
 See [CurseForge Mods](/docs/curseforge) for details.
+
+### Modtale Mods
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MT_API_KEY` | (empty) | Modtale API key |
+| `MT_MODS` | (empty) | Comma-separated mod UUIDs |
+
+See [Modtale Mods](/docs/modtale) for details.
 
 ## Complete Example
 

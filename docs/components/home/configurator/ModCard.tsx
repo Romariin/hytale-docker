@@ -33,10 +33,20 @@ export function ModCard({
 	onSelectVersion,
 	onRemove,
 }: ModCardProps) {
+	const modtaleSlug = (name: string, id: string | number) => {
+		const base = name
+			.toLowerCase()
+			.trim()
+			.replace(/[^a-z0-9]+/g, '-')
+			.replace(/-+/g, '-')
+			.replace(/^-|-$/g, '');
+		return `${base}-${id}`;
+	};
+
 	const modUrl =
 		provider === 'curseforge'
 			? (mod as CurseForgeMod).links?.websiteUrl || `https://www.curseforge.com/hytale/mods/${mod.slug}`
-			: `https://modtale.net/mods/${mod.slug}`;
+			: `https://modtale.net/mod/${modtaleSlug(mod.name, mod.id)}`;
 
 	const imageUrl =
 		'logo' in mod ? mod.logo?.thumbnailUrl : 'imageUrl' in mod ? mod.imageUrl : undefined;

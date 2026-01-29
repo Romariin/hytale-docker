@@ -1,0 +1,128 @@
+---
+title: Modtale Mods
+description: Auto-sync mods from Modtale
+---
+
+import { Steps } from 'fumadocs-ui/components/steps';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Modtale Mods
+
+Automatically download and sync mods from Modtale on every container startup.
+
+## Setup
+
+<Steps>
+
+### Get a Modtale API Key
+
+1. Log in to Modtale at https://modtale.net/dashboard/developer
+2. Create or copy your API key
+3. Keep it private
+
+### Configure Environment
+
+Add to your `docker-compose.yml`:
+
+```yaml
+environment:
+  MT_API_KEY: "${MT_API_KEY}"  # From .env file
+  MT_MODS: "mod-uuid,mod-uuid:1.2.3"
+```
+
+Create a `.env` file:
+
+```bash
+MT_API_KEY=your-api-key-here
+```
+
+### Find Mod IDs
+
+Use the Modtale mod page to get the mod UUID and optionally a version.
+
+### Restart
+
+```bash
+docker compose restart
+```
+
+</Steps>
+
+## Configuration
+
+### MT_MODS Format
+
+```yaml
+MT_MODS: "modUuid,modUuid:version,modUuid"
+```
+
+| Format | Description |
+|--------|-------------|
+| `uuid` | Latest version |
+| `uuid:version` | Specific version |
+
+### Example
+
+```yaml
+environment:
+  MT_API_KEY: "${MT_API_KEY}"
+  MT_MODS: "2f0e9b2b-7b7d-4f0b-9c12-6c9a3f7f2c1a,2c8a1e5b-4cc6-4f49-8a35-3a2f8d9c1f5a:1.2.3"
+```
+
+## How It Works
+
+On every startup:
+
+1. Parse `MT_MODS` configuration
+2. Check each mod version
+3. Download new or updated mods
+4. Remove mods no longer in `MT_MODS`
+5. Update manifest at `/server/mods/.modtale-manifest.json`
+
+## CLI Commands
+
+```bash
+# List installed mods
+docker exec -it hytale-server hytale mods list
+```
+
+## Complete Example
+
+```yaml
+services:
+  hytale:
+    image: rxmarin/hytale-docker:latest
+    container_name: hytale-server
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    ports:
+      - "5520:5520/udp"
+    environment:
+      JAVA_OPTS: "-Xms4G -Xmx8G"
+      AUTO_UPDATE: "true"
+      MT_API_KEY: "${MT_API_KEY}"
+      MT_MODS: "2f0e9b2b-7b7d-4f0b-9c12-6c9a3f7f2c1a"
+    volumes:
+      - hytale-data:/server
+
+volumes:
+  hytale-data:
+```
+
+<Callout type="tip">
+Always use a `.env` file for your API key instead of committing it to version control.
+</Callout>
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| "MT_API_KEY not set" | Add `MT_API_KEY` to environment or `.env` file |
+| "Mod not found" | Verify the mod UUID and version are correct |
+| "Download failed" | Check API key permissions and mod availability |
+
+## Next Steps
+
+- [Configuration](/docs/configuration) — All environment variables
+- [CurseForge Mods](/docs/curseforge) — CurseForge setup

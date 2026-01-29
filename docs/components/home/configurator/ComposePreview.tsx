@@ -14,9 +14,12 @@ interface ComposePreviewProps {
 export function ComposePreview({ content, copied, onCopy }: ComposePreviewProps) {
 	const [showApiKey, setShowApiKey] = useState(false);
 
-	// Mask CF_API_KEY value if not showing
+	// Mask API key values if not showing
 	const processLine = (line: string): string => {
 		if (!showApiKey && line.includes('CF_API_KEY:')) {
+			return line.replace(/"([^"]+)"/, '"••••••••••••••••"');
+		}
+		if (!showApiKey && line.includes('MT_API_KEY:')) {
 			return line.replace(/"([^"]+)"/, '"••••••••••••••••"');
 		}
 		return line;

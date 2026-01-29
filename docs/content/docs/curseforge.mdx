@@ -27,7 +27,7 @@ Add to your `docker-compose.yml`:
 
 ```yaml
 environment:
-  CF_API_KEY: "${CF_API_KEY}"  # From .env file
+  CF_API_KEY: "${CF_API_KEY}"  # From .env file (escape $ as $$ if you inline the key)
   CF_MODS: "123456,789012"
 ```
 
@@ -36,6 +36,10 @@ Create a `.env` file:
 ```bash
 CF_API_KEY=your-api-key-here
 ```
+
+<Callout type="warn">
+If you paste the API key directly in `docker-compose.yml`, escape any `$` characters as `$$` or you may get 403 errors in the logs.
+</Callout>
 
 ### Find Project IDs
 

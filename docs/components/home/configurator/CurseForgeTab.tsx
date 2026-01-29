@@ -1,18 +1,11 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { Search, Package, Loader2, ChevronLeft, ChevronRight, Filter, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { Search, Package, Loader2, ChevronLeft, ChevronRight, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/styled-tabs';
 import {
 	Empty,
@@ -22,7 +15,7 @@ import {
 	EmptyDescription,
 } from '@/components/ui/empty';
 import { ModCard } from './ModCard';
-import type { ConfigState, CurseForgeMod, SelectedMod, PaginationInfo, SortOption } from './types';
+import type { ConfigState, CurseForgeMod, SelectedMod, PaginationInfo } from './types';
 import { PAGE_SIZE } from './types';
 
 interface CurseForgeTabProps {
@@ -39,7 +32,6 @@ export function CurseForgeTab({ config, onConfigChange }: CurseForgeTabProps) {
 	const [pagination, setPagination] = useState<PaginationInfo | null>(null);
 	const [currentPage, setCurrentPage] = useState(0);
 	const [expandedMod, setExpandedMod] = useState<number | string | null>(null);
-	const [sortBy, setSortBy] = useState<SortOption>('popularity');
 	const [showApiKey, setShowApiKey] = useState(false);
 	const [loadingVersions, setLoadingVersions] = useState<Record<number, boolean>>({});
 
@@ -146,14 +138,14 @@ export function CurseForgeTab({ config, onConfigChange }: CurseForgeTabProps) {
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setCurrentPage(0);
-			fetchMods(modSearch || undefined, 0, sortBy, config.cfApiKey);
+			fetchMods(modSearch || undefined, 0, 'popularity', config.cfApiKey);
 		}, 300);
 		return () => clearTimeout(timer);
-	}, [modSearch, sortBy, config.cfApiKey, fetchMods]);
+		}, [modSearch, config.cfApiKey, fetchMods]);
 
 	const handlePageChange = (newPage: number) => {
 		setCurrentPage(newPage);
-		fetchMods(modSearch || undefined, newPage, sortBy, config.cfApiKey);
+		fetchMods(modSearch || undefined, newPage, 'popularity', config.cfApiKey);
 	};
 
 	const cfMods = config.selectedMods.filter((m) => m.provider === 'curseforge');
@@ -262,7 +254,7 @@ export function CurseForgeTab({ config, onConfigChange }: CurseForgeTabProps) {
 				</TabsList>
 
 				<TabsContent value="all" className="flex flex-col gap-3 flex-1 min-h-0 mt-3">
-					{/* Search and Filter Row */}
+					{/* Search */}
 					<div className="flex gap-2">
 						<div className="relative flex-1">
 							<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -273,18 +265,6 @@ export function CurseForgeTab({ config, onConfigChange }: CurseForgeTabProps) {
 								className="pl-9"
 							/>
 						</div>
-						<Select value={sortBy} onValueChange={(v: SortOption) => setSortBy(v)}>
-							<SelectTrigger className="w-40">
-								<Filter className="w-4 h-4 mr-2" />
-								<SelectValue placeholder="Sort by" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="popularity">Popular</SelectItem>
-								<SelectItem value="downloads">Most Downloads</SelectItem>
-								<SelectItem value="updated">Recently Updated</SelectItem>
-								<SelectItem value="name">Name (A-Z)</SelectItem>
-							</SelectContent>
-						</Select>
 					</div>
 
 					{/* Mod List */}

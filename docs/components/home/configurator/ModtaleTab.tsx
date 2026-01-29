@@ -70,7 +70,11 @@ export function ModtaleTab({ config, onConfigChange }: ModtaleTabProps) {
 				}
 
 				const data = await response.json();
-				setMods(data.data || []);
+				const nextMods = (data.data || []).map((mod: ModtaleMod & { downloadCount?: number }) => ({
+					...mod,
+					downloads: typeof mod.downloads === 'number' ? mod.downloads : mod.downloadCount ?? 0,
+				}));
+				setMods(nextMods);
 				setPagination(data.pagination || null);
 			} catch {
 				setModsError('Unable to load mods from Modtale');
@@ -224,12 +228,12 @@ export function ModtaleTab({ config, onConfigChange }: ModtaleTabProps) {
 				<p className="text-xs text-muted-foreground">
 					Required for downloading mods. Get one at{' '}
 					<a
-						href="https://modtale.net/settings/api"
+						href="https://modtale.net/dashboard/developer"
 						target="_blank"
 						rel="noopener noreferrer"
 						className="text-primary hover:underline"
 					>
-						modtale.net/settings/api
+						modtale.net/dashboard/developer
 					</a>
 				</p>
 			</div>

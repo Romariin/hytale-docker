@@ -91,7 +91,7 @@ async function main(): Promise<void> {
   const modManager = new ModManager(logger);
 
   if (config.cfApiKey && config.cfMods) {
-    modManager.registerProvider("curseforge", config.cfApiKey);
+    modManager.registerProvider("curseforge", config.cfApiKey, { patchline: config.patchline });
     const cfEntries = parseCurseForgeConfig(config.cfMods);
     await modManager.syncAllMods(cfEntries);
   }

@@ -16,12 +16,12 @@ export class ModManager {
   /**
    * Register a mod provider with its API key
    */
-  registerProvider(type: ProviderType, apiKey: string): void {
+  registerProvider(type: ProviderType, apiKey: string, options?: Record<string, unknown>): void {
     let provider: ModProvider;
 
     switch (type) {
       case "curseforge":
-        provider = new CurseForgeProvider(this.logger, apiKey);
+        provider = new CurseForgeProvider(this.logger, apiKey, options?.patchline as string);
         break;
       case "modtale":
         provider = new ModtaleProvider(this.logger, apiKey);

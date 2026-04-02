@@ -1,18 +1,22 @@
 'use client';
 
-import { Package, Download, ChevronDown, ExternalLink, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { Package, Download, ChevronDown, ExternalLink, Loader2, TestTubeDiagonal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import type { CurseForgeMod, ModtaleMod, SelectedMod, FileIndex, ModtaleVersion, ModProvider } from './types';
 
 interface ModCardProps {
 	mod: CurseForgeMod | ModtaleMod | SelectedMod;
 	provider: ModProvider;
+	patchline?: string;
 	isSelected: boolean;
 	selectedVersion?: string | number; // fileId for CF, semver for Modtale
 	isExpanded: boolean;
@@ -25,6 +29,7 @@ interface ModCardProps {
 export function ModCard({
 	mod,
 	provider,
+	patchline,
 	isSelected,
 	selectedVersion,
 	isExpanded,
@@ -33,6 +38,9 @@ export function ModCard({
 	onSelectVersion,
 	onRemove,
 }: ModCardProps) {
+	const forceAlpha = patchline === 'pre-release';
+	const [showAlphaFiles, setShowAlphaFiles] = useState(forceAlpha);
+
 	const modtaleSlug = (name: string, id: string | number) => {
 		const base = name
 			.toLowerCase()
@@ -131,9 +139,39 @@ export function ModCard({
 						</div>
 
 						<div className="px-3">
-							<p className="text-xs text-start text-muted-foreground mb-2">
-								Select a version:
-							</p>
+							<div className="flex items-center justify-between mb-2">
+								<p className="text-xs text-start text-muted-foreground">
+									Select a version:
+								</p>
+								{provider === 'curseforge' &&
+									'latestFiles' in mod &&
+									mod.latestFiles?.some(
+										(f) => f.releaseType === 2 || f.releaseType === 3
+									) && (
+										<Tooltip>
+										<TooltipTrigger asChild>
+											<label className={`flex items-center gap-1.5 ${forceAlpha ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}>
+												<Checkbox
+													checked={forceAlpha || showAlphaFiles}
+													disabled={forceAlpha}
+													onCheckedChange={(checked) =>
+														setShowAlphaFiles(checked === true)
+													}
+													className="h-3.5 w-3.5"
+												/>
+												<span className="text-xs text-muted-foreground">
+													Show alpha files
+												</span>
+											</label>
+										</TooltipTrigger>
+										{forceAlpha && (
+											<TooltipContent>
+												Always enabled on pre-release patchline
+											</TooltipContent>
+										)}
+									</Tooltip>
+									)}
+							</div>
 							{isLoadingVersions ? (
 								<div className="flex items-center justify-center py-8">
 									<Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
@@ -158,7 +196,17 @@ export function ModCard({
 									</Button>
 
 									{provider === 'curseforge' && 'latestFiles' in mod
-										? mod.latestFiles?.slice(0, 10).map((file) => {
+										? (() => {
+												const allFiles = mod.latestFiles ?? [];
+												const files = forceAlpha || showAlphaFiles
+													? allFiles
+													: allFiles.filter(
+															(f) => !f.releaseType || f.releaseType === 1
+														);
+
+												return (
+													<>
+														{files.slice(0, 10).map((file) => {
 												const isThisVersion = selectedVersion === file.id;
 												// For .zip files, use displayName, otherwise use fileName
 												const displayText = file.fileName.endsWith('.zip')
@@ -169,7 +217,7 @@ export function ModCard({
 														key={file.id}
 														variant={isThisVersion ? 'default' : 'outline'}
 														size="sm"
-														className="w-full text-xs justify-start"
+														className="w-full text-xs justify-start gap-1.5"
 														onClick={() => {
 															if (isThisVersion) {
 																onRemove();
@@ -178,10 +226,33 @@ export function ModCard({
 															}
 														}}
 													>
+														{(file.releaseType === 2 || file.releaseType === 3) && (
+															<Tooltip>
+																<TooltipTrigger asChild>
+																	<span className="inline-flex shrink-0">
+																		<TestTubeDiagonal
+																			className={`w-3.5 h-3.5 ${
+																				file.releaseType === 3
+																					? 'text-orange-500'
+																					: 'text-purple-500'
+																			}`}
+																		/>
+																	</span>
+																</TooltipTrigger>
+																<TooltipContent>
+																	{file.releaseType === 3
+																		? 'Alpha release — may be unstable'
+																		: 'Beta release — may contain bugs'}
+																</TooltipContent>
+															</Tooltip>
+														)}
 														<span className="truncate">{displayText}</span>
 													</Button>
 												);
-										  })
+										  })}
+													</>
+												);
+											  })()
 										: provider === 'modtale' && 'versions' in mod
 										? mod.versions?.slice(0, 10).map((version: ModtaleVersion) => {
 												const isThisVersion = selectedVersion === version.version;

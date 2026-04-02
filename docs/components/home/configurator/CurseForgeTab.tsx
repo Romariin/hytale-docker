@@ -312,6 +312,7 @@ export function CurseForgeTab({ config, onConfigChange }: CurseForgeTabProps) {
 											key={mod.id}
 											mod={mod}
 											provider="curseforge"
+											patchline={config.patchline}
 											isSelected={isSelected}
 											selectedVersion={selectedMod?.fileId}
 											isExpanded={expandedMod === mod.id}

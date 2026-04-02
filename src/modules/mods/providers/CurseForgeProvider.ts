@@ -7,6 +7,13 @@ import { ModProvider } from "../base/ModProvider";
 const CURSEFORGE_API_BASE = "https://api.curseforge.com/v1";
 const MODS_DIR = "/server/mods";
 
+// CurseForge releaseType: 1=Release, 2=Beta, 3=Alpha
+const CF_RELEASE_FILTER: Record<string, number[]> = {
+  release: [1],
+  beta: [1, 2],
+  alpha: [1, 2, 3],
+};
+
 interface CurseForgeFile {
   id: number;
   displayName: string;
@@ -14,6 +21,7 @@ interface CurseForgeFile {
   downloadUrl: string | null;
   fileDate: string;
   fileLength: number;
+  releaseType?: number;
 }
 
 interface CurseForgeModInfo {
@@ -29,8 +37,18 @@ interface CurseForgeModInfo {
  * CurseForge mod provider implementation
  */
 export class CurseForgeProvider extends ModProvider {
-  constructor(logger: ILogger, apiKey: string) {
+  private readonly patchline: string;
+
+  constructor(logger: ILogger, apiKey: string, patchline = "release") {
     super(logger, "curseforge", apiKey);
+    this.patchline = patchline;
+  }
+
+  private matchesReleaseFilter(releaseType?: number): boolean {
+    if (releaseType === undefined) return true;
+    const allowed = CF_RELEASE_FILTER[this.patchline];
+    if (!allowed) return true;
+    return allowed.includes(releaseType);
   }
 
   /**
@@ -90,6 +108,17 @@ export class CurseForgeProvider extends ModProvider {
     const data = (await response.json()) as { data: CurseForgeModInfo };
     const cfMod = data.data;
 
+    // Filter by release type based on patchline
+    const filteredFiles = cfMod.latestFiles
+      .filter((file) => this.matchesReleaseFilter(file.releaseType))
+      .sort((a, b) => new Date(b.fileDate).getTime() - new Date(a.fileDate).getTime());
+
+    if (filteredFiles.length === 0 && cfMod.latestFiles.length > 0) {
+      this.logger.warn(
+        `No release files found for "${cfMod.name}". The mod may only have alpha/pre-release versions. Pin a specific version to bypass filtering.`
+      );
+    }
+
     // Convert to unified ModInfo format
     return {
       provider: "curseforge",
@@ -98,9 +127,7 @@ export class CurseForgeProvider extends ModProvider {
       slug: cfMod.slug,
       summary: cfMod.summary,
       downloadCount: cfMod.downloadCount,
-      latestVersions: cfMod.latestFiles
-        .sort((a, b) => new Date(b.fileDate).getTime() - new Date(a.fileDate).getTime())
-        .map((file) => this.mapCurseForgeFile(file)),
+      latestVersions: filteredFiles.map((file) => this.mapCurseForgeFile(file)),
     };
   }
 

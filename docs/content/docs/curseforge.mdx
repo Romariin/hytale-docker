@@ -78,15 +78,31 @@ environment:
   CF_MODS: "123456,789012:456,654321"
 ```
 
+## Release Type Filtering
+
+Mod versions are automatically filtered based on your `PATCHLINE` setting:
+
+| PATCHLINE | Mods downloaded |
+|-----------|----------------|
+| `release` (default) | Only stable releases |
+| `pre-release` | All versions (stable, beta, alpha) |
+
+This prevents unstable mod versions from being installed on a release server. For example, if a mod like BetterMap publishes both stable and pre-release versions, only the latest stable version will be downloaded when `PATCHLINE=release`.
+
+<Callout type="info">
+To bypass filtering for a specific mod, pin it to an exact file ID: `CF_MODS: "123456:789"`. Pinned versions ignore the release type filter.
+</Callout>
+
 ## How It Works
 
 On every startup:
 
 1. Parse `CF_MODS` configuration
-2. Check each mod version
-3. Download new or updated mods
-4. Remove mods no longer in `CF_MODS`
-5. Update manifest at `/server/mods/.curseforge-manifest.json`
+2. Filter available versions by release type (based on `PATCHLINE`)
+3. Check each mod version
+4. Download new or updated mods
+5. Remove mods no longer in `CF_MODS`
+6. Update manifest at `/server/mods/.curseforge-manifest.json`
 
 ## CLI Commands
 
